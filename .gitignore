@@ -104,3 +104,5 @@ buildNumber.properties
 # End of https://www.gitignore.io/api/java,maven,intellij
 
 *.swp
+
+/2_hamlet/*.plt
