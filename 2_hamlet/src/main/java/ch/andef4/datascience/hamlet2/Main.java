@@ -36,8 +36,27 @@ public class Main {
     }
 
     private static Pair<Stream<String>, Double> removeStopwords(Stream<String> stream) {
-        // TODO
-        return new Pair<>(stream, 0.0);
+        List<String> stopwordList;
+        try {
+            stopwordList = Files.readAllLines(Paths.get("src/main/resources/stopwords.txt"));
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read stopwords file");
+        }
+
+        HashSet<String> stopwords = new HashSet<>(stopwordList);
+        List<String> wordsWithoutStopwords = new ArrayList<>();
+        List<String> words = stream.collect(Collectors.toList());
+
+        int found = 0;
+        for (String word : words) {
+            if (stopwords.contains(word)) {
+                found += 1;
+            } else {
+                wordsWithoutStopwords.add(word);
+            }
+        }
+        double result = (double)found / (double)words.size();
+        return new Pair<>(wordsWithoutStopwords.stream(), result);
     }
 
     private static Stream<String> stemm(Stream<String> stream) {
@@ -77,24 +96,26 @@ public class Main {
         List<String> words = tokenize(lines);
 
         // the unmodified tokenized text
-        exportGnuplot(countWords(words.stream()), "unmodified");
+        exportGnuplot(countWords(words.stream()), "1_unmodified");
 
         // the lower-cased text
-        exportGnuplot(countWords(lowerCase(words.stream())), "lowercase");
+        exportGnuplot(countWords(lowerCase(words.stream())), "2_lowercase");
 
         // the text without stopwords (what is the percentage of stopwords)
         Pair<Stream<String>, Double> stopwords = removeStopwords(words.stream());
-        System.out.printf("Percentage of stopwords (no lowercase): %f", stopwords.getSecond() * 100.0);
-        exportGnuplot(countWords(stopwords.getFirst()), "stopwords");
+        System.out.printf("Percentage of stopwords (no lowercase): %f\n", stopwords.getSecond() * 100.0);
+        exportGnuplot(countWords(stopwords.getFirst()), "3_stopwords");
 
         stopwords = removeStopwords(lowerCase(words.stream()));
-        System.out.printf("Percentage of stopwords (with lowercase): %f", stopwords.getSecond() * 100.0);
-        exportGnuplot(countWords(stopwords.getFirst()), "stopwords_lowercase");
+        System.out.printf("Percentage of stopwords (with lowercase): %f\n", stopwords.getSecond() * 100.0);
+        exportGnuplot(countWords(stopwords.getFirst()), "4_stopwords_lowercase");
 
         // the stemmed text
-        exportGnuplot(countWords(stemm(words.stream())), "stemmed");
-        exportGnuplot(countWords(stemm(lowerCase(words.stream()))), "lowercase_stemmed");
-        exportGnuplot(countWords(removeStopwords(stemm(lowerCase(words.stream()))).getFirst()), "lowercase_stemmed_stopwords");
+        exportGnuplot(countWords(stemm(words.stream())), "5_stemmed");
+        exportGnuplot(countWords(stemm(lowerCase(words.stream()))), "6_stemmed_lowercase");
+        exportGnuplot(countWords(stemm(removeStopwords(words.stream()).getFirst())), "7_stemmed_stopwords");
+        exportGnuplot(countWords(removeStopwords(stemm(lowerCase(words.stream()))).getFirst()), "8_lowercase_stemmed_stopwords");
+        exportGnuplot(countWords(stemm(removeStopwords(lowerCase(words.stream())).getFirst())), "9_lowercase_stopwords_stemmed");
     }
 }
 
