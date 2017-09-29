@@ -49,7 +49,7 @@ public class Main {
 
         int found = 0;
         for (String word : words) {
-            if (stopwords.contains(word)) {
+            if (stopwords.contains(word) || word.length() == 1) {
                 found += 1;
             } else {
                 wordsWithoutStopwords.add(word);
