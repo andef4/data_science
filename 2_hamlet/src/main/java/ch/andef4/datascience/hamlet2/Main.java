@@ -1,5 +1,7 @@
 package ch.andef4.datascience.hamlet2;
 
+import opennlp.tools.stemmer.PorterStemmer;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -60,8 +62,8 @@ public class Main {
     }
 
     private static Stream<String> stemm(Stream<String> stream) {
-        // TODO
-        return stream;
+        PorterStemmer stemmer = new PorterStemmer();
+        return stream.map(stemmer::stem);
     }
 
     private static Map<String, Integer> countWords(Stream<String> words) {
@@ -77,7 +79,9 @@ public class Main {
     private static void exportGnuplot(Map<String, Integer> wordCount, String name) {
         try {
             Stream<String> preamble = Files.readAllLines(
-                    Paths.get("src/main/resources/words.plt")).stream();
+                    Paths.get("src/main/resources/words.plt"))
+                    .stream()
+                    .map(line -> line.replace("%s", name.replace("_", " ")));
             Files.write(Paths.get(String.format("%s.plt", name)),
                     Stream.concat(preamble,
                     wordCount.entrySet()

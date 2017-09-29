@@ -1,7 +1,7 @@
 unset key
 set boxwidth 0.7
 set style fill solid
-set title 'term frequency distribution'
+set title '%s'
 set xlabel 'term'
 set ylabel 'frequency'
 set xtics rotate
